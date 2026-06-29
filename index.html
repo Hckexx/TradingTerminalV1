@@ -4,10 +4,126 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Position Size Calculator | Professional Risk Management Tool</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #0c0d14;
+            --bg-card: rgba(20, 22, 33, 0.75);
+            --border-color: rgba(42, 46, 57, 0.6);
+            --input-bg: #1e222d;
+            --text-primary: #f0f3fa;
+            --text-secondary: #b2b5be;
+            --text-muted: #787b86;
+            --accent-blue: #2962ff;
+            --accent-blue-hover: #1e4bd6;
+            --accent-green: #089981;
+            --accent-red: #f23645;
+            --accent-yellow: #ffb74d;
+            --accent-orange: #ff9800;
+            --shadow-main: rgba(0, 0, 0, 0.5);
+            --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-image: radial-gradient(circle at 50% 10%, #1a2035 0%, var(--bg-main) 70%);
+        }
+        .app-container { width: 100%; max-width: 1100px; }
+        .app-header { text-align: center; margin-bottom: 30px; }
+        .app-header h1 {
+            font-size: 2.2rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px;
+            background: linear-gradient(135deg, #ffffff 0%, #a2a6b0 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .app-header p { color: var(--text-muted); font-size: 1rem; font-weight: 500; }
+        .calculator-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .card {
+            background: var(--bg-card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color); border-radius: 16px; padding: 24px;
+            box-shadow: 0 12px 40px var(--shadow-main); transition: var(--transition-smooth);
+        }
+        .card:hover { border-color: rgba(42, 46, 57, 0.9); }
+        .card-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 14px;
+        }
+        .card-header h2 { font-size: 1.25rem; font-weight: 600; color: var(--text-primary); }
+        .input-group { display: flex; flex-direction: column; margin-bottom: 18px; }
+        .row { display: flex; gap: 16px; }
+        .col-6 { flex: 1; }
+        .col-4 { flex: 0 0 calc(33.333% - 11px); }
+        label { font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; }
+        input, select {
+            background-color: var(--input-bg); border: 1px solid var(--border-color);
+            color: var(--text-primary); padding: 12px 16px; border-radius: 8px;
+            font-size: 1rem; font-weight: 500; outline: none; transition: var(--transition-smooth); width: 100%;
+        }
+        input:focus, select:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(41, 98, 255, 0.2); }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        .direction-toggle { display: flex; gap: 8px; }
+        .dir-btn {
+            flex: 1; padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border-color);
+            background: var(--input-bg); color: var(--text-secondary); font-weight: 600;
+            font-size: 0.9rem; cursor: pointer; transition: var(--transition-smooth); text-align: center;
+        }
+        .dir-btn.active { background: var(--accent-blue); border-color: var(--accent-blue); color: #ffffff; box-shadow: 0 0 12px rgba(41, 98, 255, 0.25); }
+        .dir-btn:not(.active):hover { background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border-color: rgba(255, 255, 255, 0.15); }
+        .error-message {
+            margin-top: 12px; padding: 10px 14px; background: rgba(242, 54, 69, 0.08);
+            border: 1px solid rgba(242, 54, 69, 0.3); border-radius: 8px; color: var(--accent-red);
+            font-size: 0.85rem; font-weight: 500; text-align: center; display: none;
+        }
+        .warning-message {
+            margin-top: 8px; padding: 10px 14px; background: rgba(255, 152, 0, 0.08);
+            border: 1px solid rgba(255, 152, 0, 0.3); border-radius: 8px; color: var(--accent-orange);
+            font-size: 0.85rem; font-weight: 500; text-align: center; display: none;
+        }
+        .btn { padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; transition: var(--transition-smooth); }
+        .btn-primary { background-color: var(--accent-blue); color: #ffffff; }
+        .btn-primary:hover { background-color: var(--accent-blue-hover); }
+        .btn-secondary { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
+        .btn-secondary:hover { background-color: rgba(255, 255, 255, 0.05); color: var(--text-primary); }
+        .results-container { display: flex; flex-direction: column; gap: 16px; }
+        .result-tile {
+            background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color);
+            padding: 16px; border-radius: 10px; display: flex; flex-direction: column; transition: var(--transition-smooth);
+        }
+        .result-tile:hover { background: rgba(255, 255, 255, 0.04); }
+        .primary-tile { background: linear-gradient(135deg, rgba(41, 98, 255, 0.1) 0%, rgba(41, 98, 255, 0.02) 100%); border-color: rgba(41, 98, 255, 0.3); }
+        .profit-tile { background: linear-gradient(135deg, rgba(8, 153, 129, 0.08) 0%, rgba(8, 153, 129, 0.01) 100%); }
+        .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .result-label { font-size: 0.8rem; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .result-value { font-size: 1.4rem; font-weight: 700; }
+        .highlighted { color: #ffffff; font-size: 2rem; text-shadow: 0 0 10px rgba(41, 98, 255, 0.4); }
+        .risk-text { color: var(--accent-red); }
+        .profit-text { color: var(--accent-green); }
+        .rr-text { color: #ffb74d; }
+        .toast {
+            position: fixed; bottom: 24px; right: 24px; background-color: var(--accent-blue);
+            color: white; padding: 12px 24px; border-radius: 8px; font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4); transition: transform 0.3s ease, opacity 0.3s ease;
+            z-index: 1000; opacity: 1; transform: translateY(0);
+        }
+        .toast.hidden { opacity: 0; transform: translateY(20px); pointer-events: none; }
+        @media (max-width: 768px) {
+            .calculator-grid { grid-template-columns: 1fr; }
+            body { padding: 10px; }
+            .highlighted { font-size: 1.6rem; }
+            .app-header h1 { font-size: 1.8rem; }
+            .direction-toggle { flex-direction: column; gap: 6px; }
+            .row { flex-wrap: wrap; }
+            .col-4 { flex: 1 1 100%; }
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
@@ -15,22 +131,17 @@
             <h1>Position Size Calculator</h1>
             <p>Professional Risk Management Tool</p>
         </header>
-
         <main class="calculator-grid">
-            
             <section class="card input-card">
                 <div class="card-header">
                     <h2>Trade Parameters</h2>
                     <button id="btnClear" class="btn btn-secondary">Clear</button>
                 </div>
-                
                 <form id="calcForm" autocomplete="off">
                     <div class="input-group">
                         <label for="accountBalance">Account Balance ($)</label>
                         <input type="number" id="accountBalance" value="5000" step="any" min="0" required>
                     </div>
-
-                    <!-- Direction Toggle -->
                     <div class="input-group">
                         <label>Trade Direction</label>
                         <div class="direction-toggle">
@@ -39,7 +150,6 @@
                         </div>
                         <input type="hidden" id="tradeDirection" value="BUY">
                     </div>
-
                     <div class="row">
                         <div class="input-group col-6">
                             <label for="riskType">Risk Type</label>
@@ -53,25 +163,37 @@
                             <input type="number" id="riskValue" value="0.5" step="any" min="0" required>
                         </div>
                     </div>
-
                     <div class="input-group">
                         <label for="asset">Asset Class</label>
                         <select id="asset">
-                            <option value="XAUUSD" data-pip="0.1" data-lot="100">XAUUSD (Gold)</option>
-                            <option value="BTCUSD" data-pip="1" data-lot="1">BTCUSD (Bitcoin)</option>
-                            <option value="EURUSD" data-pip="0.0001" data-lot="100000">EURUSD (Euro)</option>
-                            <option value="GBPUSD" data-pip="0.0001" data-lot="100000">GBPUSD (Pound)</option>
-                            <option value="US30" data-pip="1" data-lot="1">US30 (Dow Jones)</option>
-                            <option value="NAS100" data-pip="1" data-lot="1">NAS100 (Nasdaq)</option>
-                            <option value="custom" data-pip="0.01" data-lot="1" selected>Custom / Standard Asset</option>
+                            <option value="XAUUSD">XAUUSD (Gold) — 1 lot = 100 oz</option>
+                            <option value="BTCUSD">BTCUSD (Bitcoin) — 1 lot = 1 BTC</option>
+                            <option value="EURUSD">EURUSD (Euro) — 1 lot = 100,000</option>
+                            <option value="GBPUSD">GBPUSD (Pound) — 1 lot = 100,000</option>
+                            <option value="US30">US30 (Dow Jones) — 1 lot = 1 contract</option>
+                            <option value="NAS100">NAS100 (Nasdaq) — 1 lot = 1 contract</option>
+                            <option value="custom" selected>Custom / Standard Asset</option>
                         </select>
                     </div>
-
-                    <div class="input-group">
-                        <label for="entryPrice">Entry Price</label>
-                        <input type="number" id="entryPrice" placeholder="0.00" step="any" min="0" required>
+                    <div class="row">
+                        <div class="input-group col-6">
+                            <label for="entryPrice">Entry Price</label>
+                            <input type="number" id="entryPrice" placeholder="0.00" step="any" min="0" required>
+                        </div>
+                        <div class="input-group col-6">
+                            <label for="leverage">Leverage</label>
+                            <select id="leverage">
+                                <option value="0">None (Spot/Cash)</option>
+                                <option value="10">1:10</option>
+                                <option value="30">1:30</option>
+                                <option value="50">1:50</option>
+                                <option value="100" selected>1:100</option>
+                                <option value="200">1:200</option>
+                                <option value="500">1:500</option>
+                                <option value="1000">1:1000</option>
+                            </select>
+                        </div>
                     </div>
-
                     <div class="row">
                         <div class="input-group col-6">
                             <label for="stopLoss">Stop Loss Price</label>
@@ -82,35 +204,32 @@
                             <input type="number" id="takeProfit" placeholder="0.00" step="any" min="0">
                         </div>
                     </div>
-
-                    <!-- Error Display -->
-                    <div id="errorDisplay" class="error-message" style="display:none;"></div>
+                    <div id="errorDisplay" class="error-message"></div>
+                    <div id="warningDisplay" class="warning-message"></div>
                 </form>
             </section>
-
             <section class="card output-card">
                 <div class="card-header">
                     <h2>Risk Analysis</h2>
                     <button id="btnCopy" class="btn btn-primary">Copy Results</button>
                 </div>
-
                 <div class="results-container">
                     <div class="result-tile primary-tile">
-                        <span class="result-label">Recommended Units / Lot Size</span>
+                        <span class="result-label">Recommended Position Size</span>
                         <span id="outLotSize" class="result-value highlighted">0.00 Lots</span>
+                        <span id="outUnits" style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">0.00 units</span>
                     </div>
-
                     <div class="results-grid">
                         <div class="result-tile">
                             <span class="result-label">Dollar Risk</span>
                             <span id="outDollarRisk" class="result-value risk-text">$0.00</span>
                         </div>
                         <div class="result-tile">
-                            <span class="result-label">Stop Loss Distance</span>
-                            <span id="outSlDistance" class="result-value">0.0 pips</span>
+                            <span class="result-label">SL Distance</span>
+                            <span id="outSlDistance" class="result-value">0.0</span>
+                            <span id="outSlUnit" style="font-size:0.75rem;color:var(--text-muted);">pips</span>
                         </div>
                     </div>
-
                     <div class="results-grid">
                         <div class="result-tile">
                             <span class="result-label">Risk Reward Ratio (R:R)</span>
@@ -121,18 +240,547 @@
                             <span id="outPotentialLoss" class="result-value risk-text">$0.00</span>
                         </div>
                     </div>
-
                     <div class="result-tile profit-tile">
                         <span class="result-label">Potential Profit</span>
                         <span id="outPotentialProfit" class="result-value profit-text">$0.00</span>
+                    </div>
+                    <div class="result-tile" style="border-color:rgba(41,98,255,0.2);">
+                        <span class="result-label">Margin Required</span>
+                        <span id="outMargin" class="result-value" style="color:#90caf9;">$0.00</span>
                     </div>
                 </div>
             </section>
         </main>
     </div>
-    
     <div id="toast" class="toast hidden">Results copied to clipboard!</div>
+    <script>
+        (function() {
+            'use strict';
 
-    <script src="script.js"></script>
+            // ==========================================
+            // ASSET CONFIGURATION
+            // Adjust tickValue to match YOUR broker's specs
+            // ==========================================
+            const ASSET_DICTIONARY = {
+                XAUUSD: {
+                    contractSize: 100,
+                    pipSize: 0.10,
+                    tickValue: 1.00,
+                    minLot: 0.01,
+                    lotStep: 0.01,
+                    maxLot: 100,
+                    unitLabel: 'oz',
+                    distanceLabel: 'pips',
+                    type: 'commodity'
+                },
+                BTCUSD: {
+                    contractSize: 1,
+                    pipSize: 1.00,
+                    tickValue: 1.00,
+                    minLot: 0.01,
+                    lotStep: 0.01,
+                    maxLot: 100,
+                    unitLabel: 'BTC',
+                    distanceLabel: 'points',
+                    type: 'crypto'
+                },
+                EURUSD: {
+                    contractSize: 100000,
+                    pipSize: 0.0001,
+                    tickValue: 10.00,
+                    minLot: 0.01,
+                    lotStep: 0.01,
+                    maxLot: 100,
+                    unitLabel: 'units',
+                    distanceLabel: 'pips',
+                    type: 'forex'
+                },
+                GBPUSD: {
+                    contractSize: 100000,
+                    pipSize: 0.0001,
+                    tickValue: 10.00,
+                    minLot: 0.01,
+                    lotStep: 0.01,
+                    maxLot: 100,
+                    unitLabel: 'units',
+                    distanceLabel: 'pips',
+                    type: 'forex'
+                },
+                US30: {
+                    contractSize: 1,
+                    pipSize: 1.00,
+                    tickValue: 1.00,
+                    minLot: 0.01,
+                    lotStep: 0.01,
+                    maxLot: 500,
+                    unitLabel: 'contracts',
+                    distanceLabel: 'points',
+                    type: 'index'
+                },
+                NAS100: {
+                    contractSize: 1,
+                    pipSize: 1.00,
+                    tickValue: 1.00,
+                    minLot: 0.01,
+                    lotStep: 0.01,
+                    maxLot: 500,
+                    unitLabel: 'contracts',
+                    distanceLabel: 'points',
+                    type: 'index'
+                },
+                custom: {
+                    contractSize: 1,
+                    pipSize: 0.01,
+                    tickValue: 1.00,
+                    minLot: 0.01,
+                    lotStep: 0.01,
+                    maxLot: 9999,
+                    unitLabel: 'units',
+                    distanceLabel: 'units',
+                    type: 'custom'
+                }
+            };
+
+            const FORMATTERS = {
+                currency: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }),
+                lots: new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                units: new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 }),
+                pips: new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
+                ratio: new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+            };
+
+            // ==========================================
+            // STATE
+            // ==========================================
+            const state = {
+                inputs: {
+                    balance: 5000,
+                    riskType: 'percent',
+                    riskValue: 0.5,
+                    asset: 'custom',
+                    direction: 'BUY',
+                    leverage: 100,
+                    entry: null,
+                    sl: null,
+                    tp: null
+                },
+                results: {
+                    isValid: false,
+                    validationError: '',
+                    warningMessages: [],
+                    dollarRisk: 0,
+                    slDistancePrice: 0,
+                    slDistanceDisplay: 0,
+                    units: 0,
+                    lots: 0,
+                    rrRatio: 0,
+                    potentialProfit: 0,
+                    potentialLoss: 0,
+                    marginRequired: 0
+                }
+            };
+
+            // ==========================================
+            // VALIDATION
+            // ==========================================
+            function validateInputs(inputs) {
+                const errors = [];
+                const warnings = [];
+
+                if (!Number.isFinite(inputs.balance) || inputs.balance <= 0) {
+                    errors.push("Account balance must be a positive number.");
+                }
+                if (!Number.isFinite(inputs.riskValue) || inputs.riskValue <= 0) {
+                    errors.push("Risk value must be a positive number.");
+                }
+                if (inputs.entry === null || !Number.isFinite(inputs.entry)) {
+                    errors.push("Entry price is required and must be a valid number.");
+                }
+                if (inputs.sl === null || !Number.isFinite(inputs.sl)) {
+                    errors.push("Stop loss price is required and must be a valid number.");
+                }
+
+                if (errors.length > 0) return { errors, warnings };
+
+                if (inputs.entry === inputs.sl) {
+                    errors.push("Entry cannot equal Stop Loss.");
+                }
+
+                if (inputs.direction === 'BUY') {
+                    if (inputs.sl >= inputs.entry) errors.push("Buy invalid: SL must be below Entry.");
+                    if (inputs.tp !== null && Number.isFinite(inputs.tp) && inputs.tp <= inputs.entry) {
+                        errors.push("Buy invalid: TP must be above Entry.");
+                    }
+                } else {
+                    if (inputs.sl <= inputs.entry) errors.push("Sell invalid: SL must be above Entry.");
+                    if (inputs.tp !== null && Number.isFinite(inputs.tp) && inputs.tp >= inputs.entry) {
+                        errors.push("Sell invalid: TP must be below Entry.");
+                    }
+                }
+
+                // Risk percentage warning
+                if (inputs.riskType === 'percent' && inputs.riskValue > 5) {
+                    warnings.push("⚠️ High Risk: You're risking more than 5% of your account on this trade.");
+                }
+
+                return { errors, warnings };
+            }
+
+            // ==========================================
+            // MATH CORE
+            // ==========================================
+            function calculateDollarRisk(balance, riskType, riskValue) {
+                if (riskType === 'percent') {
+                    return balance * (riskValue / 100);
+                }
+                return riskValue;
+            }
+
+            function calculatePositionSize(dollarRisk, slDistancePrice, assetConfig) {
+                if (slDistancePrice <= 0 || assetConfig.pipSize <= 0) {
+                    return { units: 0, lots: 0 };
+                }
+                const slDistanceInPips = slDistancePrice / assetConfig.pipSize;
+                const dollarRiskPerLot = slDistanceInPips * assetConfig.tickValue;
+                if (dollarRiskPerLot <= 0) return { units: 0, lots: 0 };
+                const lots = dollarRisk / dollarRiskPerLot;
+                const units = lots * assetConfig.contractSize;
+                return { units, lots };
+            }
+
+            function roundLots(lots, assetConfig) {
+                const step = assetConfig.lotStep || 0.01;
+                const rounded = Math.floor(lots / step) * step;
+                return Math.max(assetConfig.minLot, Math.min(assetConfig.maxLot, rounded));
+            }
+
+            function calculatePnL(lots, distancePrice, assetConfig) {
+                if (assetConfig.pipSize <= 0) return 0;
+                const distanceInPips = distancePrice / assetConfig.pipSize;
+                return lots * distanceInPips * assetConfig.tickValue;
+            }
+
+            function calculateMargin(lots, entryPrice, leverage, assetConfig) {
+                const notionalValue = lots * assetConfig.contractSize * entryPrice;
+                if (leverage <= 0) return notionalValue;
+                return notionalValue / leverage;
+            }
+
+            // ==========================================
+            // EVALUATE TRADE
+            // ==========================================
+            function evaluateTrade() {
+                const assetConfig = ASSET_DICTIONARY[state.inputs.asset] || ASSET_DICTIONARY['custom'];
+                const { errors, warnings } = validateInputs(state.inputs);
+
+                if (errors.length > 0) {
+                    state.results.isValid = false;
+                    state.results.validationError = errors.join(' ');
+                    state.results.warningMessages = warnings;
+                    return;
+                }
+
+                const { entry, sl, tp, balance, riskType, riskValue, leverage } = state.inputs;
+                const dollarRisk = calculateDollarRisk(balance, riskType, riskValue);
+                const slDistancePrice = Math.abs(entry - sl);
+                const slDistanceDisplay = slDistancePrice / assetConfig.pipSize;
+
+                let { lots } = calculatePositionSize(dollarRisk, slDistancePrice, assetConfig);
+                const roundedLots = roundLots(lots, assetConfig);
+                const units = roundedLots * assetConfig.contractSize;
+
+                if (Math.abs(lots - roundedLots) > 0.0001) {
+                    if (roundedLots === assetConfig.minLot && lots < assetConfig.minLot) {
+                        warnings.push(`⚠️ Position rounded up to minimum (${assetConfig.minLot} lots). Actual risk exceeds desired amount.`);
+                    } else if (roundedLots === assetConfig.maxLot && lots > assetConfig.maxLot) {
+                        warnings.push(`⚠️ Position capped at maximum (${assetConfig.maxLot} lots). Cannot risk full desired amount.`);
+                    } else {
+                        warnings.push(`ℹ️ Position rounded to nearest valid step (${FORMATTERS.lots.format(roundedLots)} lots).`);
+                    }
+                }
+
+                const actualDollarRisk = calculatePnL(roundedLots, slDistancePrice, assetConfig);
+                const marginRequired = calculateMargin(roundedLots, entry, leverage, assetConfig);
+
+                if (leverage > 0 && marginRequired > balance) {
+                    warnings.push("⚠️ Insufficient margin. Your account balance cannot support this position size at the selected leverage.");
+                }
+
+                let rrRatio = 0;
+                let potentialProfit = 0;
+                if (tp !== null && Number.isFinite(tp)) {
+                    const tpDistancePrice = Math.abs(tp - entry);
+                    rrRatio = slDistancePrice > 0 ? tpDistancePrice / slDistancePrice : 0;
+                    potentialProfit = calculatePnL(roundedLots, tpDistancePrice, assetConfig);
+                }
+
+                state.results = {
+                    isValid: true,
+                    validationError: '',
+                    warningMessages: warnings,
+                    dollarRisk: actualDollarRisk,
+                    slDistancePrice,
+                    slDistanceDisplay,
+                    units,
+                    lots: roundedLots,
+                    rrRatio,
+                    potentialProfit,
+                    potentialLoss: actualDollarRisk,
+                    marginRequired
+                };
+            }
+
+            // ==========================================
+            // UI RENDERER
+            // ==========================================
+            const UI = {
+                elements: {},
+
+                init() {
+                    this.cacheDOM();
+                    this.bindEvents();
+                    this.loadFromStorage();
+                    this.updateDirectionUI();
+                    this.updateRiskLabel();
+                    this.render();
+                },
+
+                cacheDOM() {
+                    const ids = [
+                        'accountBalance', 'riskType', 'riskValue', 'asset', 'tradeDirection',
+                        'entryPrice', 'stopLoss', 'takeProfit', 'leverage',
+                        'btnBuy', 'btnSell', 'btnClear', 'btnCopy',
+                        'riskValueLabel', 'errorDisplay', 'warningDisplay',
+                        'outLotSize', 'outUnits', 'outDollarRisk', 'outSlDistance', 'outSlUnit',
+                        'outRrRatio', 'outPotentialProfit', 'outPotentialLoss', 'outMargin', 'toast'
+                    ];
+                    ids.forEach(id => {
+                        this.elements[id] = document.getElementById(id);
+                    });
+                },
+
+                syncInputsToState() {
+                    state.inputs.balance = parseFloat(this.elements.accountBalance.value) || 5000;
+                    state.inputs.riskType = this.elements.riskType.value;
+                    state.inputs.riskValue = parseFloat(this.elements.riskValue.value) || 0.5;
+                    state.inputs.asset = this.elements.asset.value;
+                    state.inputs.direction = this.elements.tradeDirection.value;
+                    state.inputs.leverage = parseInt(this.elements.leverage.value) || 0;
+                    const entryVal = this.elements.entryPrice.value;
+                    state.inputs.entry = entryVal !== '' ? parseFloat(entryVal) : null;
+                    const slVal = this.elements.stopLoss.value;
+                    state.inputs.sl = slVal !== '' ? parseFloat(slVal) : null;
+                    const tpVal = this.elements.takeProfit.value;
+                    state.inputs.tp = tpVal !== '' ? parseFloat(tpVal) : null;
+                },
+
+                bindEvents() {
+                    const inputIds = ['accountBalance', 'riskValue', 'entryPrice', 'stopLoss', 'takeProfit'];
+                    inputIds.forEach(id => {
+                        if (this.elements[id]) {
+                            this.elements[id].addEventListener('input', () => {
+                                this.syncInputsToState();
+                                this.saveToStorage();
+                                this.render();
+                            });
+                        }
+                    });
+
+                    const selectIds = ['riskType', 'asset', 'leverage'];
+                    selectIds.forEach(id => {
+                        if (this.elements[id]) {
+                            this.elements[id].addEventListener('change', () => {
+                                this.syncInputsToState();
+                                if (id === 'riskType') this.updateRiskLabel();
+                                this.saveToStorage();
+                                this.render();
+                            });
+                        }
+                    });
+
+                    if (this.elements.btnBuy) {
+                        this.elements.btnBuy.addEventListener('click', () => {
+                            state.inputs.direction = 'BUY';
+                            this.elements.tradeDirection.value = 'BUY';
+                            this.updateDirectionUI();
+                            this.saveToStorage();
+                            this.render();
+                        });
+                    }
+                    if (this.elements.btnSell) {
+                        this.elements.btnSell.addEventListener('click', () => {
+                            state.inputs.direction = 'SELL';
+                            this.elements.tradeDirection.value = 'SELL';
+                            this.updateDirectionUI();
+                            this.saveToStorage();
+                            this.render();
+                        });
+                    }
+                    if (this.elements.btnClear) {
+                        this.elements.btnClear.addEventListener('click', () => this.clearForm());
+                    }
+                    if (this.elements.btnCopy) {
+                        this.elements.btnCopy.addEventListener('click', () => this.copyResults());
+                    }
+                },
+
+                updateDirectionUI() {
+                    if (state.inputs.direction === 'BUY') {
+                        this.elements.btnBuy.classList.add('active');
+                        this.elements.btnSell.classList.remove('active');
+                    } else {
+                        this.elements.btnSell.classList.add('active');
+                        this.elements.btnBuy.classList.remove('active');
+                    }
+                },
+
+                updateRiskLabel() {
+                    this.elements.riskValueLabel.textContent =
+                        state.inputs.riskType === 'percent' ? 'Risk Value (%)' : 'Risk Value ($)';
+                },
+
+                render() {
+                    this.syncInputsToState();
+                    evaluateTrade();
+
+                    this.elements.errorDisplay.style.display = 'none';
+                    this.elements.warningDisplay.style.display = 'none';
+
+                    if (!state.results.isValid) {
+                        this.elements.outLotSize.textContent = '--';
+                        this.elements.outUnits.textContent = '--';
+                        this.elements.outDollarRisk.textContent = '--';
+                        this.elements.outSlDistance.textContent = '--';
+                        this.elements.outSlUnit.textContent = '';
+                        this.elements.outRrRatio.textContent = '--';
+                        this.elements.outPotentialProfit.textContent = '--';
+                        this.elements.outPotentialLoss.textContent = '--';
+                        this.elements.outMargin.textContent = '--';
+                        if (state.results.validationError) {
+                            this.elements.errorDisplay.textContent = state.results.validationError;
+                            this.elements.errorDisplay.style.display = 'block';
+                        }
+                        return;
+                    }
+
+                    const res = state.results;
+                    const assetConfig = ASSET_DICTIONARY[state.inputs.asset] || ASSET_DICTIONARY['custom'];
+
+                    this.elements.outLotSize.textContent = `${FORMATTERS.lots.format(res.lots)} Lots`;
+                    this.elements.outUnits.textContent = `${FORMATTERS.units.format(res.units)} ${assetConfig.unitLabel}`;
+                    this.elements.outDollarRisk.textContent = FORMATTERS.currency.format(res.dollarRisk);
+                    this.elements.outSlDistance.textContent = FORMATTERS.pips.format(res.slDistanceDisplay);
+                    this.elements.outSlUnit.textContent = assetConfig.distanceLabel;
+                    this.elements.outPotentialLoss.textContent = FORMATTERS.currency.format(res.potentialLoss);
+                    this.elements.outMargin.textContent = FORMATTERS.currency.format(res.marginRequired);
+
+                    if (res.rrRatio > 0 && Number.isFinite(res.rrRatio)) {
+                        this.elements.outRrRatio.textContent = `${FORMATTERS.ratio.format(res.rrRatio)} : 1`;
+                        this.elements.outPotentialProfit.textContent = FORMATTERS.currency.format(res.potentialProfit);
+                    } else {
+                        this.elements.outRrRatio.textContent = '--';
+                        this.elements.outPotentialProfit.textContent = '$0.00';
+                    }
+
+                    if (res.warningMessages.length > 0) {
+                        this.elements.warningDisplay.innerHTML = res.warningMessages.join('<br>');
+                        this.elements.warningDisplay.style.display = 'block';
+                    }
+                },
+
+                clearForm() {
+                    this.elements.accountBalance.value = 5000;
+                    this.elements.riskType.value = 'percent';
+                    this.elements.riskValue.value = 0.5;
+                    this.elements.asset.value = 'custom';
+                    this.elements.leverage.value = 100;
+                    this.elements.entryPrice.value = '';
+                    this.elements.stopLoss.value = '';
+                    this.elements.takeProfit.value = '';
+                    state.inputs.direction = 'BUY';
+                    this.elements.tradeDirection.value = 'BUY';
+                    this.updateDirectionUI();
+                    this.updateRiskLabel();
+                    this.syncInputsToState();
+                    this.saveToStorage();
+                    this.render();
+                },
+
+                copyResults() {
+                    if (!state.results.isValid) {
+                        this.showToast('No valid results to copy.');
+                        return;
+                    }
+                    const r = state.results;
+                    const assetConfig = ASSET_DICTIONARY[state.inputs.asset] || ASSET_DICTIONARY['custom'];
+                    const text = [
+                        `Trade Setup: ${state.inputs.direction} ${state.inputs.asset}`,
+                        `Entry: ${state.inputs.entry} | SL: ${state.inputs.sl}${state.inputs.tp ? ' | TP: ' + state.inputs.tp : ''}`,
+                        `Position Size: ${FORMATTERS.lots.format(r.lots)} Lots (${FORMATTERS.units.format(r.units)} ${assetConfig.unitLabel})`,
+                        `Risk: ${FORMATTERS.currency.format(r.dollarRisk)}`,
+                        `SL Distance: ${FORMATTERS.pips.format(r.slDistanceDisplay)} ${assetConfig.distanceLabel}`,
+                        r.rrRatio > 0 ? `R:R = ${FORMATTERS.ratio.format(r.rrRatio)} : 1` : 'R:R = N/A',
+                        `Potential Profit: ${FORMATTERS.currency.format(r.potentialProfit)}`,
+                        `Margin Required: ${FORMATTERS.currency.format(r.marginRequired)}`,
+                        state.inputs.leverage > 0 ? `Leverage: 1:${state.inputs.leverage}` : 'Spot/Cash (No Leverage)'
+                    ].join('\n');
+
+                    navigator.clipboard.writeText(text).then(() => {
+                        this.showToast('Results copied to clipboard!');
+                    }).catch(() => {
+                        this.showToast('Copy failed. Please try again.');
+                    });
+                },
+
+                showToast(msg) {
+                    const toast = this.elements.toast;
+                    toast.textContent = msg;
+                    toast.classList.remove('hidden');
+                    clearTimeout(toast._timeout);
+                    toast._timeout = setTimeout(() => toast.classList.add('hidden'), 2500);
+                },
+
+                saveToStorage() {
+                    try {
+                        const data = {
+                            balance: this.elements.accountBalance.value,
+                            riskType: state.inputs.riskType,
+                            riskValue: this.elements.riskValue.value,
+                            asset: state.inputs.asset,
+                            direction: state.inputs.direction,
+                            leverage: state.inputs.leverage,
+                            entry: this.elements.entryPrice.value,
+                            sl: this.elements.stopLoss.value,
+                            tp: this.elements.takeProfit.value
+                        };
+                        localStorage.setItem('tradeterminal_calculator', JSON.stringify(data));
+                    } catch (e) { /* storage full or unavailable */ }
+                },
+
+                loadFromStorage() {
+                    try {
+                        const raw = localStorage.getItem('tradeterminal_calculator');
+                        if (!raw) return;
+                        const data = JSON.parse(raw);
+                        if (data.balance) this.elements.accountBalance.value = data.balance;
+                        if (data.riskType) this.elements.riskType.value = data.riskType;
+                        if (data.riskValue) this.elements.riskValue.value = data.riskValue;
+                        if (data.asset) this.elements.asset.value = data.asset;
+                        if (data.direction) {
+                            state.inputs.direction = data.direction;
+                            this.elements.tradeDirection.value = data.direction;
+                        }
+                        if (data.leverage) this.elements.leverage.value = data.leverage;
+                        if (data.entry) this.elements.entryPrice.value = data.entry;
+                        if (data.sl) this.elements.stopLoss.value = data.sl;
+                        if (data.tp) this.elements.takeProfit.value = data.tp;
+                        this.syncInputsToState();
+                    } catch (e) { /* ignore corrupt data */ }
+                }
+            };
+
+            document.addEventListener('DOMContentLoaded', () => UI.init());
+        })();
+    </script>
 </body>
 </html>
